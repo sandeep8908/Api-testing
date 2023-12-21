@@ -1,2 +1,4 @@
-package com.example.test.demo;public class Ldap {
+package com.example.test.demo;
+
+public class Ldap {
 }
