@@ -5,6 +5,8 @@ import com.example.test.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -38,4 +40,10 @@ public class UserService {
         userRepository.deleteById(userId);
         return "User deleted Successfully";
     }
+
+    public List<User> getAllUsers() {
+        List<User> userList = userRepository.findAll();
+        return userList;
+    }
+
 }

@@ -6,6 +6,12 @@ import io.restassured.response.Response;
 
 public class UserEndpoints {
 
+    public static Response getAllUsers(){
+        RestAssured.baseURI = Routes.base_uri;
+        Response response = RestAssured.given().when().get(Routes.post_uri);
+        return  response;
+    }
+
     public static Response getUser(int userId){
         RestAssured.baseURI = Routes.base_uri;
         Response response = RestAssured.given().pathParam("userId", userId)

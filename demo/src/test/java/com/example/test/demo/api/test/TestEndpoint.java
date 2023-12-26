@@ -5,6 +5,7 @@ import com.example.test.demo.api.payload.User;
 import com.github.javafaker.Faker;
 import com.google.gson.Gson;
 import io.restassured.response.Response;
+import org.apache.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.Assert;
@@ -14,9 +15,14 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+
 public class TestEndpoint {
     User userPayload;
     Faker faker;
+
+    String status = "active";
 
     @BeforeTest
     public void beforeTest() {
@@ -34,33 +40,45 @@ public class TestEndpoint {
     @Test
     public void addUser() throws JSONException {
         Response response = postUser();
-        String userId = getUserId(response);
+        JSONObject jsonObject = returnJsonObject(response);
+        String userId = jsonObject.getString("userId");
 
         System.out.println("saved userId:-------- " + userId);
-        Assert.assertEquals(response.getStatusCode(), 200);
-        //Assert.assertTrue(response.getStatusLine().contains("OK"));
+        Assert.assertEquals(response.getStatusCode(), HttpStatus.SC_OK);
 
+        assertThat(status,equalToIgnoringCase(jsonObject.getString("status")));
         System.out.println("**********" + this.userPayload.getUsername() + " is created ************");
     }
 
+    @Test
+    public void getAllUser(){
+        postUser();
+
+        System.out.println("*************************{GET}****************************************");
+
+        Response response = UserEndpoints.getAllUsers();
+        response.then().log().body().statusCode(200);
+    }
 
     @Test
     public void getUsernameById() throws JSONException {
         Response postResponse = postUser();
-        String userId = getUserId(postResponse);
-        System.out.println("saved userId:-------- " + userId);
+        JSONObject jsonObject = returnJsonObject(postResponse);
+        String userId = jsonObject.getString("userId");
         System.out.println("*************************{GET}****************************************");
 
         Response response = UserEndpoints.getUser(Integer.parseInt(userId));
         response.then().log().body().statusCode(200);
 
+        assertThat(userPayload,hasProperty("password"));
         System.out.println("************  " + this.userPayload.getUserId() + " is fetched **********");
     }
 
     @Test
     public void updateUser() throws JSONException {
         Response postResponse = postUser();
-        String userId = getUserId(postResponse);
+        JSONObject postJsonObject = returnJsonObject(postResponse);
+        String userId = postJsonObject.getString("userId");
         System.out.println("saved userId:-------- " + userId);
 
         Map<String, Object> bodyParams = new HashMap<>();
@@ -79,14 +97,21 @@ public class TestEndpoint {
         Response afterUpdateResponse = UserEndpoints.getUser(this.userPayload.getUserId());
         afterUpdateResponse.then().log().body().statusCode(200);
 
+        JSONObject jsonObject = returnJsonObject(afterUpdateResponse);
+        User user = new Gson().fromJson(String.valueOf(jsonObject), User.class);
+
+        assertThat(jsonObject.getString("status"), equalTo("inactive"));
+        assertThat(user,hasProperty("status",equalTo("inactive")));
+
         System.out.println("*********  " + this.userPayload.getUserId() + " is updated ************");
+
     }
 
     @Test
     public void deleteUser() throws JSONException {
         Response postResponse = postUser();
-        String userId = getUserId(postResponse);
-        System.out.println("saved userId:-------- " + userId);
+        JSONObject jsonObject = returnJsonObject(postResponse);
+        String userId = jsonObject.getString("userId");
 
         System.out.println("*************************{DELETE}************************************");
         Response response = UserEndpoints.deleteUser(Integer.parseInt(userId));
@@ -110,11 +135,10 @@ public class TestEndpoint {
         return response;
     }
 
-    private static String getUserId(Response response) throws JSONException {
+    private static JSONObject returnJsonObject(Response response) throws JSONException {
         String responseBody = response.getBody().asString();
         JSONObject jsonObject = new JSONObject(responseBody);
-        String userId = jsonObject.getString("userId");
-        return userId;
+        return jsonObject;
     }
 
 }
