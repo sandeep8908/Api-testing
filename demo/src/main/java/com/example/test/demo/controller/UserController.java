@@ -3,7 +3,6 @@ package com.example.test.demo.controller;
 import com.example.test.demo.entity.User;
 import com.example.test.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +14,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/user")
-    public ResponseEntity<?> getAllUsers(){
+    public ResponseEntity<?> getAllUsers() {
         List<User> allUsers = userService.getAllUsers();
         return ResponseEntity.ok(allUsers);
     }
@@ -33,13 +32,13 @@ public class UserController {
     }
 
     @PutMapping("/user/{userId}")
-    public ResponseEntity<?> updateUser(@RequestBody User user,@PathVariable("userId") int userId) {
+    public ResponseEntity<?> updateUser(@RequestBody User user, @PathVariable("userId") int userId) {
         User updateUser = userService.updateUser(userId, user);
         return ResponseEntity.ok(updateUser);
     }
 
     @DeleteMapping("user/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable("userId") int userId){
+    public ResponseEntity<?> deleteUser(@PathVariable("userId") int userId) {
         String message = userService.deleteUser(userId);
         return ResponseEntity.ok(message);
     }

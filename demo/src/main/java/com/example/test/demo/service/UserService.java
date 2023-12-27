@@ -5,7 +5,6 @@ import com.example.test.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,31 +13,41 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User addUser(User user){
+    public User addUser(User user) {
         User userFromDb = userRepository.save(user);
         return userFromDb;
     }
 
     public User getUser(int userId) {
         Optional<User> user = userRepository.findById(userId);
-        User userFromDb = user.get();
-        return userFromDb;
+        if (user.isPresent()) {
+            User userFromDb = user.get();
+            return userFromDb;
+        }
+        return null;
     }
 
     public User updateUser(int userId, User user) {
-        User userFromDb = userRepository.findById(userId).get();
-        userFromDb.setUsername(user.getUsername());
-        userFromDb.setPassword(user.getPassword());
-        userFromDb.setEmail(user.getEmail());
-        userFromDb.setStatus(user.getStatus());
+        Optional<User> userFromDb = userRepository.findById(userId);
+        if (userFromDb.isPresent()) {
+            User exitingUser = userFromDb.get();
+            exitingUser.setUsername(user.getUsername());
+            exitingUser.setPassword(user.getPassword());
+            exitingUser.setEmail(user.getEmail());
+            exitingUser.setStatus(user.getStatus());
 
-        return userRepository.save(userFromDb);
+            return userRepository.save(exitingUser);
+        }
+        return null;
     }
 
     public String deleteUser(int userId) {
-        User user = userRepository.findById(userId).get();
-        userRepository.deleteById(userId);
-        return "User deleted Successfully";
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            userRepository.deleteById(userId);
+            return "User deleted Successfully";
+        }
+        return "User not deleted !";
     }
 
     public List<User> getAllUsers() {

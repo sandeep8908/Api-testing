@@ -1,4 +1,5 @@
 package com.example.test.demo.entity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
