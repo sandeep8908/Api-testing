@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,29 +26,41 @@ class UserServiceTest {
     private UserService userService;
 
     @Test
-     void addUser(){
+    void testAddUser() {
         User user = getUser(7398);
 
         when(userRepository.save(user)).thenReturn(user);
         User savedUser = userService.addUser(user);
 
-        verify(userRepository,times(1)).save(savedUser);
-        assertEquals(user,savedUser);
+        verify(userRepository, times(1)).save(savedUser);
+        assertEquals(user, savedUser);
     }
+
     @Test
-    void findUserById(){
+    void testGetUserById() {
         User user = getUser(12);
 
         lenient().when(userRepository.findById(12)).thenReturn(Optional.of(user));
         User userFromDb = userService.getUser(12);
 
-        assertEquals(user.getUserId(),userFromDb.getUserId());
+        assertEquals(user.getUserId(), userFromDb.getUserId());
 
-        verify(userRepository,times(1)).findById(12);
+        verify(userRepository, times(1)).findById(12);
     }
 
     @Test
-    void updateUser(){
+    void testGetUserById_WithNonExistentUserId() {
+        int nonExistentUserId = 67;
+
+        when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
+
+        User result = userService.getUser(nonExistentUserId);
+        assertNull(result);
+        verify(userRepository, times(1)).findById(nonExistentUserId);
+    }
+
+    @Test
+    void testUpdateUser() {
         User user = getUser(12);
 
         User updateUser = new User();
@@ -62,23 +74,53 @@ class UserServiceTest {
         lenient().when(userRepository.save(updateUser)).thenReturn(updateUser);
         User resultUser = userService.updateUser(user.getUserId(), updateUser);
 
-        assertEquals("inactive",resultUser.getStatus());
+        assertEquals("inactive", resultUser.getStatus());
 
-        verify(userRepository,times(1)).findById(user.getUserId());
-        verify(userRepository,times(1)).save(any(User.class));
+        verify(userRepository, times(1)).findById(user.getUserId());
+        verify(userRepository, times(1)).save(any(User.class));
     }
     @Test
-    void deleteUser(){
+    void testUpdateUser_WithNonExistentUserId(){
+        int nonExistentUserId = 27;
+        User updateUser = new User();
+        updateUser.setUserId(12);
+        updateUser.setUsername("satyamp008");
+        updateUser.setEmail("satyam897@gmail.com");
+        updateUser.setPassword("satyam@0008");
+        updateUser.setStatus("inactive");
+
+        when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
+        User resultUser
+                = userService.updateUser(nonExistentUserId, updateUser);
+        assertNull(resultUser);
+
+        verify(userRepository,times(1)).findById(nonExistentUserId);
+    }
+
+    @Test
+    void testDeleteUser() {
         User user = getUser(23);
 
         when(userRepository.findById(user.getUserId())).thenReturn(Optional.ofNullable(user));
 
         String result = userService.deleteUser(user.getUserId());
-        assertEquals("User deleted Successfully",result);
-        verify(userRepository,times(1)).deleteById(user.getUserId());
+        assertEquals("User deleted Successfully", result);
+        verify(userRepository, times(1)).deleteById(user.getUserId());
     }
     @Test
-    void findAllUser(){
+    void testDeleteUser_WithNonExistentUserId(){
+        int nonExistentUserId = 64;
+
+        when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
+
+        String result = userService.deleteUser(nonExistentUserId);
+        assertEquals("User not deleted !",result);
+
+        verify(userRepository,times(1)).findById(nonExistentUserId);
+    }
+
+    @Test
+    void testFindAllUser() {
         User user1 = getUser(32);
         User user2 = getUser(32);
 
@@ -89,7 +131,7 @@ class UserServiceTest {
         when(userRepository.findAll()).thenReturn(users);
         List<User> allUsers = userService.getAllUsers();
 
-        assertEquals(users.size(),allUsers.size());
+        assertEquals(users.size(), allUsers.size());
     }
 
     @NotNull
