@@ -2,7 +2,6 @@ package com.example.test.demo.service;
 
 import com.example.test.demo.entity.User;
 import com.example.test.demo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,19 +9,20 @@ import java.util.Optional;
 
 @Component
 public class UserService {
-    @Autowired
     private UserRepository userRepository;
 
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     public User addUser(User user) {
-        User userFromDb = userRepository.save(user);
-        return userFromDb;
+        return userRepository.save(user);
     }
 
     public User getUser(int userId) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isPresent()) {
-            User userFromDb = user.get();
-            return userFromDb;
+            return user.get();
         }
         return null;
     }
@@ -51,8 +51,8 @@ public class UserService {
     }
 
     public List<User> getAllUsers() {
-        List<User> userList = userRepository.findAll();
-        return userList;
+
+        return userRepository.findAll();
     }
 
 }
