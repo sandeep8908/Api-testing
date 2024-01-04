@@ -2,6 +2,7 @@ package com.example.test.demo.controller;
 
 import com.example.test.demo.entity.User;
 import com.example.test.demo.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ public class
 UserController {
     private UserService userService;
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
