@@ -115,7 +115,7 @@ import static org.hamcrest.Matchers.*;
 
         System.out.println("*************************{DELETE}************************************");
         Response response = UserEndpoints.deleteUser(Integer.parseInt(userId));
-        response.then().log().body().statusCode(200);
+        response.then().log().body().statusCode(204);
 
         System.out.println("********  " + this.userPayload.getUserId() + " is deleted *************");
     }
